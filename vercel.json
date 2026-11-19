@@ -5,6 +5,9 @@
     },
     "api/worklog.js": {
       "maxDuration": 30
+    },
+    "api/repo-sync.js": {
+      "maxDuration": 60
     }
   },
   "headers": [

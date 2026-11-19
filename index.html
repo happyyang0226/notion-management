@@ -196,11 +196,12 @@ updateTypes();updateProjects();draw();
   if(!/^db01:[0-9a-f-]{36}$/i.test(raw))throw Error("Notion에서 조회한 프로젝트를 선택하세요.");
   return raw.slice(5);
  };
- const slug=s=>String(s).toUpperCase().replace(/[^A-Z0-9가-힣]+/g,"-").replace(/^-|-$/g,"").slice(0,35)||"TASK";
+ const slug=s=>String(s).toUpperCase().replace(/[^A-Z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,20)||"PROJECT";
+ const hash=s=>{let h=2166136261;for(const ch of String(s)){h^=ch.codePointAt(0);h=Math.imul(h,16777619)}return (h>>>0).toString(16).toUpperCase().padStart(8,"0")};
  function autoId(){
   const project=$("wlProject").selectedOptions[0]?.textContent||"PROJECT";
   const date=$("wlDate").value.replace(/-/g,"");
-  return "SBG-"+date+"-"+slug(project)+"-"+slug($("wlTitle").value)+"-V1";
+  return "SBG-"+date+"-"+slug(project)+"-"+hash(project+"|"+$("wlTitle").value.trim())+"-V1";
  }
  const record=()=>{
   const title=$("wlTitle").value.trim(),date=$("wlDate").value,id=$("wlId").value.trim().toUpperCase();

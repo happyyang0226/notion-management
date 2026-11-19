@@ -137,9 +137,9 @@ function draw(){
    const t=tag("text",{class:"node-label",y:-3});t.textContent=n.title.length>14?n.title.slice(0,12)+"…":n.title;g.append(t);
    const tt=tag("text",{class:"node-type",y:18});tt.textContent=n.type||"지식";g.append(tt);
   }
-  g.addEventListener("click",ev=>{ev.stopPropagation();detail(n)});
+  // Pointer selection happens on pointerup, so a small click cannot be mistaken for a drag.
   g.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();detail(n)}});
-  g.addEventListener("pointerdown",e=>{drag={kind:"node",id:n.id,x:e.clientX,y:e.clientY,...p};e.stopPropagation()});
+  g.addEventListener("pointerdown",e=>{if(e.button!==0)return;drag={kind:"node",id:n.id,startClientX:e.clientX,startClientY:e.clientY,originX:p.x,originY:p.y,moved:false,pointerId:e.pointerId};el("graph").setPointerCapture(e.pointerId);e.stopPropagation()});
   el("nodes").append(g);
  });
  el("surface").setAttribute("transform","translate("+pan.x+" "+pan.y+") scale("+zoom+")");
@@ -155,9 +155,34 @@ function edgeDetail(e){
 function detail(n){selected=n.id;selectedEdge="";const d=el("details");d.replaceChildren();const h=document.createElement("h3");h.textContent=n.title;const p=document.createElement("p");p.className="detail-desc";p.textContent=n.summary||"요약 정보가 없습니다.";const t=document.createElement("p");t.className="detail-meta";t.textContent="유형: "+(n.type||"미분류")+" / 상태: "+(n.status||"미확인");const a=document.createElement("a");a.textContent="Notion 원본 열기";a.href=n.url;a.target="_blank";a.rel="noopener noreferrer";d.append(h,t,p,a);draw()}
 function change(m){mode=m;positions={};pan={x:0,y:0};zoom=1;el("graph").style.height="";el("graphMode").classList.toggle("active",m==="graph");el("mindMode").classList.toggle("active",m==="mind");draw()}
 el("graphMode").onclick=()=>change("graph");el("mindMode").onclick=()=>change("mind");el("search").oninput=()=>{positions={};draw()};el("filter").onchange=()=>{positions={};draw()};el("project").onchange=()=>{positions={};selected="";el("details").textContent="노드를 선택하세요.";draw()};el("clearFilters").onclick=()=>{el("search").value="";el("filter").value="";el("project").value="";positions={};draw()};el("reset").onclick=()=>{positions={};pan={x:0,y:0};zoom=1;draw()};el("zoomIn").onclick=()=>{zoom=Math.min(3,zoom*1.2);draw()};el("zoomOut").onclick=()=>{zoom=Math.max(.3,zoom/1.2);draw()};
-el("graph").addEventListener("pointerdown",e=>{if(!drag)drag={kind:"pan",x:e.clientX,y:e.clientY,px:pan.x,py:pan.y};el("graph").setPointerCapture(e.pointerId)});
-el("graph").addEventListener("pointermove",e=>{if(!drag)return;if(drag.kind==="pan"){pan={x:drag.px+e.clientX-drag.x,y:drag.py+e.clientY-drag.y}}else{const rect=el("graph").getBoundingClientRect();const scale=canvas.w/rect.width;positions[drag.id]={x:drag.x+(e.clientX-drag.x)*scale/zoom,y:drag.y+(e.clientY-drag.y)*scale/zoom}}draw()});
-el("graph").addEventListener("pointerup",()=>drag=null);el("graph").addEventListener("wheel",e=>{e.preventDefault();zoom=Math.max(.3,Math.min(3,zoom*(e.deltaY<0?1.1:.9)));draw()},{passive:false});
+// Separate click selection from dragging. Never mix SVG coordinates with client pixels.
+el("graph").addEventListener("pointerdown",e=>{
+ if(e.button!==0||drag)return;
+ drag={kind:"pan",startClientX:e.clientX,startClientY:e.clientY,originX:pan.x,originY:pan.y,moved:false,pointerId:e.pointerId};
+ el("graph").setPointerCapture(e.pointerId);
+});
+el("graph").addEventListener("pointermove",e=>{
+ if(!drag||e.pointerId!==drag.pointerId)return;
+ const dx=e.clientX-drag.startClientX,dy=e.clientY-drag.startClientY;
+ if(!drag.moved&&Math.hypot(dx,dy)<8)return;
+ drag.moved=true;
+ if(drag.kind==="pan"){pan={x:drag.originX+dx,y:drag.originY+dy};}
+ else{
+  const rect=el("graph").getBoundingClientRect();
+  const scaleX=canvas.w/rect.width,scaleY=canvas.h/rect.height;
+  positions[drag.id]={x:drag.originX+dx*scaleX/zoom,y:drag.originY+dy*scaleY/zoom};
+ }
+ draw();
+});
+el("graph").addEventListener("pointerup",e=>{
+ if(!drag||e.pointerId!==drag.pointerId)return;
+ const done=drag;drag=null;
+ if(el("graph").hasPointerCapture(e.pointerId))el("graph").releasePointerCapture(e.pointerId);
+ if(done.kind==="node"&&!done.moved){const node=data.nodes.find(n=>n.id===done.id);if(node)detail(node);}
+});
+el("graph").addEventListener("pointercancel",()=>drag=null);
+el("graph").addEventListener("lostpointercapture",()=>drag=null);
+el("graph").addEventListener("wheel",e=>{e.preventDefault();zoom=Math.max(.3,Math.min(3,zoom*(e.deltaY<0?1.1:.9)));draw()},{passive:false});
 el("refresh").onclick=async()=>{const key=prompt("서버 읽기 접근키(GRAPH_VIEW_KEY)를 입력하세요. Notion API 비밀키는 입력하지 마세요.");if(!key)return;el("status").textContent="서버 조회 중";try{const r=await fetch("/api/graph",{headers:{Authorization:"Bearer "+key},cache:"no-store"}),j=await r.json();if(!r.ok)throw Error(j.error==="not_configured"?"서버 인증 설정이 필요합니다.":j.error);if(!Array.isArray(j.nodes)||!Array.isArray(j.edges))throw Error("응답 형식 오류");data=j;positions={};selectedEdge="";updateTypes();updateProjects();draw();el("status").textContent="실시간 조회 성공"+(j.meta?.warnings?.length?" · 일부 DB 미조회: "+j.meta.warnings.join(", "):"")}catch(e){el("status").textContent="조회 실패: "+e.message}};
 updateTypes();updateProjects();draw();
 </script></body></html>

@@ -26,20 +26,41 @@ async function projects(token){
   cursor=body.has_more?body.next_cursor:null;
  }while(cursor);return rows;
 }
+// Known private repository allowlist is for discovery only. GitHub grants access according to the token's actual scope.
+const PRIVATE_REPO_CANDIDATES=["pt-exam-app","question-bank","pt-exercise","pt-anatomy","pt-msk-diagnosis","pt-kine-eval-lab"];
+function publicRepo(r){return r&&r.owner?.login?.toLowerCase()===OWNER&&r.name&&r.full_name}
 async function repos(){
  const token=process.env.GITHUB_SYNC_TOKEN||"";
- const prefix=token?"https://api.github.com/user/repos?affiliation=owner&per_page=100&page=":"https://api.github.com/users/"+OWNER+"/repos?per_page=100&type=owner&page=";
- const headers={"Accept":"application/vnd.github+json","User-Agent":"second-brain-github-notion-sync","X-GitHub-Api-Version":"2022-11-28"};
- if(token)headers.Authorization="Bearer "+token;
- let rows=[];
- for(let page=1;page<=5;page++){
-  const pageRows=await getJson(prefix+page,{headers});
-  if(!Array.isArray(pageRows))throw Error("invalid_github_response");
-  rows.push(...pageRows.filter(p=>p.owner?.login?.toLowerCase()===OWNER&&p.name&&p.full_name));
-  if(pageRows.length<100)break;
-  if(page===5)throw Error("github_scan_limit");
+ const baseHeaders={"Accept":"application/vnd.github+json","User-Agent":"second-brain-github-notion-sync","X-GitHub-Api-Version":"2022-11-28"};
+ const headers=token?{...baseHeaders,Authorization:"Bearer "+token}:baseHeaders;
+ // Public repos must stay visible even if a fine-grained token cannot call /user/repos.
+ const publicList=await getJson("https://api.github.com/users/"+OWNER+"/repos?per_page=100&type=owner&page=1",{headers:baseHeaders});
+ if(!Array.isArray(publicList))throw new Error("github_public_invalid");
+ const rows=new Map(publicList.filter(publicRepo).map(r=>[r.full_name.toLowerCase(),r]));
+ let privateStatus="not_configured";
+ if(token){
+  // Fine-grained PATs can be restricted in which listing endpoints they can access.
+  // Individual /repos/{owner}/{repo} reads respect the selected repository scope.
+  const results=await Promise.all(PRIVATE_REPO_CANDIDATES.map(async name=>{
+   try{
+    const r=await getJson("https://api.github.com/repos/"+OWNER+"/"+name,{headers});
+    return {name,result:r};
+   }catch(e){return {name,error:String(e.message||e)};}
+  }));
+  const success=results.filter(x=>x.result&&publicRepo(x.result));
+  for(const x of success)rows.set(x.result.full_name.toLowerCase(),x.result);
+  const denied=results.filter(x=>x.error);
+  privateStatus=denied.length===0?"all_selected_accessible":"partial_or_denied";
+  if(success.length===0)privateStatus="no_private_access";
+  // Never claim the 6 private repositories were checked when the credential was rejected.
+  if(privateStatus==="no_private_access"){
+   const codes=[...new Set(denied.map(x=>(x.error.match(/upstream_status_\\d{3}/)||[])[0]||"unreachable"))];
+   return {items:[...rows.values()].map(r=>({name:r.name,fullName:r.full_name,url:r.html_url||"https://github.com/"+r.full_name,private:!!r.private,archived:!!r.archived,description:(r.description||"").slice(0,350)})),
+    visibility:"public_repositories_only",privateStatus,codes};
+  }
  }
- return {items:rows.map(r=>({name:r.name,fullName:r.full_name,url:r.html_url||"https://github.com/"+r.full_name,private:!!r.private,archived:!!r.archived,description:(r.description||"").slice(0,350)})),visibility:token?"authenticated_owner_repositories":"public_repositories_only"};
+ return {items:[...rows.values()].map(r=>({name:r.name,fullName:r.full_name,url:r.html_url||"https://github.com/"+r.full_name,private:!!r.private,archived:!!r.archived,description:(r.description||"").slice(0,350)})),
+  visibility:token?"authenticated_owner_repositories":"public_repositories_only",privateStatus};
 }
 function compare(repo,rows){
  const low=x=>String(x||"").trim().replace(/\/+$/,"").toLowerCase();
@@ -63,10 +84,21 @@ module.exports=async function handler(req,res){
  body.selected.some(x=>typeof x!=="string"||!new RegExp("^"+OWNER+"/[A-Za-z0-9_.-]+$","i").test(x))||
  new Set(body.selected.map(x=>x.toLowerCase())).size!==body.selected.length))return message(res,400,"invalid_selection");
  try{
-  const [github,existing]=await Promise.all([repos(),projects(NOTION_API_KEY)]);
+  const results=await Promise.allSettled([repos(),projects(NOTION_API_KEY)]);
+  if(results[0].status==="rejected"){
+   const raw=String(results[0].reason?.message||"");
+   const code=(raw.match(/upstream_status_(\\d{3})/)||[])[1];
+   return message(res,502,code==="401"?"github_auth_failed":code==="403"?"github_permission_or_rate_limit":code==="404"?"github_endpoint_not_found":"github_fetch_failed");
+  }
+  if(results[1].status==="rejected"){
+   const raw=String(results[1].reason?.message||"");
+   const code=(raw.match(/upstream_status_(\\d{3})/)||[])[1];
+   return message(res,502,code==="401"||code==="403"?"notion_permission_failed":"notion_fetch_failed");
+  }
+  const [github,existing]=results.map(x=>x.value);
   const mapped=github.items.map(r=>{const p=compare(r,existing);return {...r,match:p?{title:prop(p,"프로젝트명"),url:p.url}:null}});
   if(body.action==="preview"){
-   return res.status(200).json({visibility:github.visibility,githubCount:mapped.length,notionCount:existing.length,
+   return res.status(200).json({visibility:github.visibility,privateStatus:github.privateStatus,privateCodes:github.codes||[],githubCount:mapped.length,notionCount:existing.length,
     existing:mapped.filter(r=>r.match),missing:mapped.filter(r=>!r.match)});
   }
   const byName=new Map(mapped.map(r=>[r.fullName.toLowerCase(),r]));

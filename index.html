@@ -2,9 +2,9 @@
 <html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Notion Second Brain Graph</title>
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0c1525;color:#eaf1fb;font:15px system-ui,Arial,sans-serif}header{padding:16px 22px;border-bottom:1px solid #34465b;background:#142237}h1{font-size:22px;margin:0 0 3px}.muted{color:#9cb0c8;font-size:12px}.layout{display:grid;grid-template-columns:220px minmax(300px,1fr) 250px;min-height:calc(100vh - 80px)}aside{padding:18px;background:#122034;border-right:1px solid #34465b}aside:last-child{border-left:1px solid #34465b;border-right:0}button,input,select{width:100%;padding:10px;border:1px solid #49617d;border-radius:9px;background:#1c3048;color:white;margin:8px 0;font:inherit}button{cursor:pointer}button:hover{background:#315174}.active{background:#3566aa}main{padding:14px}#graph{height:69vh;min-height:400px;width:100%;border:1px solid #34465b;border-radius:14px;background:radial-gradient(circle,#1b2f49,#0a1323 70%);touch-action:none}#graph g.node{cursor:grab}#graph circle{fill:#3469a5;stroke:#b3d9ff;stroke-width:2}#graph .method circle{fill:#3f806f;stroke:#b4ead9}#graph text{fill:#fff;font-size:12px;text-anchor:middle;pointer-events:none}.detail{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#a6d3ff}.pill{display:inline-block;background:#1d3350;border-radius:8px;padding:8px;margin-right:8px}@media(max-width:850px){.layout{display:block}aside{border:0;border-bottom:1px solid #34465b}#graph{height:50vh}}
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0c1525;color:#eaf1fb;font:15px system-ui,Arial,sans-serif}header{padding:16px 22px;border-bottom:1px solid #34465b;background:#142237}h1{font-size:22px;margin:0 0 3px}.muted{color:#9cb0c8;font-size:12px}.layout{display:grid;grid-template-columns:220px minmax(300px,1fr) 250px;min-height:calc(100vh - 80px)}aside{padding:18px;background:#122034;border-right:1px solid #34465b}aside:last-child{border-left:1px solid #34465b;border-right:0}button,input,select{width:100%;padding:10px;border:1px solid #49617d;border-radius:9px;background:#1c3048;color:white;margin:8px 0;font:inherit}button{cursor:pointer}button:hover{background:#315174}.active{background:#3566aa}main{padding:14px}#graph{height:69vh;min-height:400px;width:100%;border:1px solid #34465b;border-radius:14px;background:radial-gradient(circle,#1b2f49,#0a1323 70%);touch-action:none}#graph g.node{cursor:grab}#graph circle{fill:#3469a5;stroke:#b3d9ff;stroke-width:2}#graph .method circle{fill:#3f806f;stroke:#b4ead9}#graph .node:focus circle{stroke:#ffec90;stroke-width:4}#graph text{fill:#fff;font-size:12px;text-anchor:middle;pointer-events:none}.detail{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#a6d3ff}.pill{display:inline-block;background:#1d3350;border-radius:8px;padding:8px;margin-right:8px}@media(max-width:850px){.layout{display:block}aside{border:0;border-bottom:1px solid #34465b}#graph{height:50vh}}
 </style></head><body><header><h1>🧠 AI Second Brain</h1><span class="muted">Notion 지식 관계 탐색기 · 읽기 전용</span></header>
-<div class="layout"><aside><b>지식 탐색</b><button id="graphMode" class="active">관계 그래프</button><button id="mindMode">마인드맵</button><label>검색<input id="search" placeholder="지식 이름 검색"></label><label>유형<select id="filter"><option value="">전체</option><option>프로젝트</option><option>방법</option><option>개념</option><option>논문</option></select></label><button id="refresh">Notion 최신 데이터 조회</button><button id="reset">위치 초기화</button><button id="zoomIn">확대 +</button><button id="zoomOut">축소 −</button><p class="muted" id="status">2026-11-19 스냅샷. API 설정 전에는 자동 갱신되지 않습니다.</p><p class="muted">Notion API 비밀키는 이 화면에 입력하지 마세요.</p></aside>
+<div class="layout"><aside><b>지식 탐색</b><button id="graphMode" class="active">관계 그래프</button><button id="mindMode">마인드맵</button><label>검색<input id="search" placeholder="지식 이름 검색"></label><label>유형<select id="filter"><option value="">전체</option></select></label><label>프로젝트별 보기<select id="project"><option value="">모든 프로젝트</option></select></label><button id="clearFilters">필터 초기화</button><button id="refresh">Notion 최신 데이터 조회</button><button id="reset">위치 초기화</button><button id="zoomIn">확대 +</button><button id="zoomOut">축소 −</button><p class="muted" id="status">2026-11-19 스냅샷. API 설정 전에는 자동 갱신되지 않습니다.</p><p class="muted">Notion API 비밀키는 이 화면에 입력하지 마세요.</p></aside>
 <main><div><span id="nodesCount" class="pill"></span><span id="edgesCount" class="pill"></span><span id="source" class="pill"></span></div><svg id="graph" viewBox="0 0 960 660"><g id="surface"><g id="edges"></g><g id="nodes"></g></g></svg><p class="muted">노드 클릭: 상세 정보 · 노드 끌기: 배치 이동 · 배경 끌기/휠: 화면 이동/확대</p></main>
 <aside><h3>지식 상세 정보</h3><div id="details" class="detail muted">노드를 선택하세요.</div></aside></div>
 <script>
@@ -15,19 +15,62 @@ edges:[{id:"REL-PTEXAM-HANDOFF",source:"KB-PTEXAM",target:"KB-AIHANDOFF",type:"�
 let data=snapshot, mode="graph", selected="",positions={},zoom=1,drag=null,pan={x:0,y:0};
 const el=id=>document.getElementById(id),ns="http://www.w3.org/2000/svg";
 function tag(name,attrs){const e=document.createElementNS(ns,name);Object.entries(attrs||{}).forEach(([k,v])=>e.setAttribute(k,v));return e}
-function shown(){const q=el("search").value.trim().toLowerCase(),f=el("filter").value;const nodes=data.nodes.filter(n=>(!f||n.type===f)&&(!q||(n.title+" "+n.summary).toLowerCase().includes(q)));const ids=new Set(nodes.map(n=>n.id));return {nodes,edges:data.edges.filter(x=>ids.has(x.source)&&ids.has(x.target))}}
-function point(n,i,total){if(positions[n.id])return positions[n.id];const cols=total<=3?total:4;const rows=Math.ceil(total/cols);const col=i%cols,row=Math.floor(i/cols);const stepX=cols>1?760/(cols-1):0;const stepY=rows>1?480/(rows-1):0;const x=100+col*stepX,y=90+row*stepY;return positions[n.id]={x,y}}
+function shown(){
+ const q=el("search").value.trim().toLowerCase(),kind=el("filter").value,project=el("project").value;
+ let ids=new Set(data.nodes.map(n=>n.id));
+ if(project){
+  // Only explicit Notion relations count as project membership. Do not infer from similar names.
+  const related=new Set([project]);
+  for(const e of data.edges)if(e.source===project)related.add(e.target);else if(e.target===project)related.add(e.source);
+  ids=new Set([...ids].filter(id=>related.has(id)));
+ }
+ const nodes=data.nodes.filter(n=>ids.has(n.id)&&(!kind||n.type===kind)&&(!q||(n.title+" "+n.summary).toLowerCase().includes(q)));
+ const visible=new Set(nodes.map(n=>n.id));
+ return {nodes,edges:data.edges.filter(e=>visible.has(e.source)&&visible.has(e.target))};
+}
+function point(n,i,total){
+ if(positions[n.id])return positions[n.id];
+ const nodes=shown().nodes;
+ if(mode==="mind"){
+  // Project hubs occupy the first column, connected records the next columns.
+  const projects=nodes.filter(x=>x.type==="프로젝트"&&x.source==="01").map(x=>x.id);
+  const attached=new Set();
+  const lanes=new Map();
+  for(const node of nodes){
+   const links=data.edges.filter(e=>e.source===node.id||e.target===node.id);
+   const related=links.map(e=>e.source===node.id?e.target:e.source);
+   const hub=projects.find(id=>related.includes(id));
+   const lane=projects.includes(node.id)?0:hub?1:2;
+   if(!lanes.has(lane))lanes.set(lane,[]);
+   lanes.get(lane).push(node.id);attached.add(node.id);
+  }
+  for(const [lane,list] of lanes.entries()){
+   const idx=list.indexOf(n.id);
+   if(idx>=0)return positions[n.id]={x:[125,445,765][lane],y:85+idx*(Math.min(135,Math.max(90,510/Math.max(1,list.length-1))))};
+  }
+ }
+ const cols=total<=3?total:4,rows=Math.ceil(total/cols);
+ const col=i%cols,row=Math.floor(i/cols);
+ return positions[n.id]={x:100+col*(cols>1?760/(cols-1):0),y:90+row*(rows>1?480/(rows-1):0)};
+}
+function updateProjects(){
+ const menu=el("project"),current=menu.value;
+ const projects=data.nodes.filter(n=>n.source==="01"&&n.type==="프로젝트");
+ menu.replaceChildren(new Option("모든 프로젝트",""));
+ for(const p of projects)menu.add(new Option(p.title,p.id));
+ if(projects.some(p=>p.id===current))menu.value=current;
+}
 function updateTypes(){const menu=el("filter"),current=menu.value,types=[...new Set(data.nodes.map(n=>n.type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ko"));menu.replaceChildren(new Option("전체",""));for(const kind of types)menu.add(new Option(kind,kind));if(types.includes(current))menu.value=current}
 function draw(){const {nodes,edges}=shown(),map=new Map(nodes.map((n,i)=>[n.id,point(n,i,nodes.length)]));el("nodesCount").textContent="지식 "+nodes.length;el("edgesCount").textContent="연결 "+edges.length;el("source").textContent=data.meta.mode==="live"?"Notion 최신":"검증 스냅샷";el("edges").replaceChildren();el("nodes").replaceChildren();
 edges.forEach(e=>{const a=map.get(e.source),b=map.get(e.target);if(!a||!b)return;el("edges").append(tag("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:"#7295b9","stroke-width":2}));const t=tag("text",{x:(a.x+b.x)/2,y:(a.y+b.y)/2-8});t.textContent=e.type;el("edges").append(t)});
 nodes.forEach(n=>{const p=map.get(n.id),g=tag("g",{class:"node"+(n.type==="방법"?" method":""),transform:"translate("+p.x+" "+p.y+")"});g.append(tag("circle",{r:57,stroke:selected===n.id?"#fde68a":undefined}));const t=tag("text",{y:0});t.textContent=n.title.length>14?n.title.slice(0,12)+"…":n.title;g.append(t);const tt=tag("text",{y:20});tt.textContent=n.type;g.append(tt);g.addEventListener("click",()=>detail(n));g.addEventListener("pointerdown",e=>{drag={kind:"node",id:n.id,x:e.clientX,y:e.clientY,...p};e.stopPropagation()});el("nodes").append(g)});
 el("surface").setAttribute("transform","translate("+pan.x+" "+pan.y+") scale("+zoom+")")}
 function detail(n){selected=n.id;const d=el("details");d.replaceChildren();const h=document.createElement("h3");h.textContent=n.title;const p=document.createElement("p");p.textContent=n.summary;const t=document.createElement("p");t.textContent="유형: "+n.type+" / 검증: "+n.status;const a=document.createElement("a");a.textContent="Notion 원본 열기";a.href=n.url;a.target="_blank";a.rel="noopener noreferrer";d.append(h,t,p,a);draw()}
-function change(m){mode=m;positions={};el("graphMode").classList.toggle("active",m==="graph");el("mindMode").classList.toggle("active",m==="mind");draw()}
-el("graphMode").onclick=()=>change("graph");el("mindMode").onclick=()=>change("mind");el("search").oninput=draw;el("filter").onchange=draw;el("reset").onclick=()=>{positions={};pan={x:0,y:0};zoom=1;draw()};el("zoomIn").onclick=()=>{zoom=Math.min(3,zoom*1.2);draw()};el("zoomOut").onclick=()=>{zoom=Math.max(.3,zoom/1.2);draw()};
+function change(m){mode=m;positions={};pan={x:0,y:0};zoom=1;el("graphMode").classList.toggle("active",m==="graph");el("mindMode").classList.toggle("active",m==="mind");draw()}
+el("graphMode").onclick=()=>change("graph");el("mindMode").onclick=()=>change("mind");el("search").oninput=()=>{positions={};draw()};el("filter").onchange=()=>{positions={};draw()};el("project").onchange=()=>{positions={};selected="";el("details").textContent="노드를 선택하세요.";draw()};el("clearFilters").onclick=()=>{el("search").value="";el("filter").value="";el("project").value="";positions={};draw()};el("reset").onclick=()=>{positions={};pan={x:0,y:0};zoom=1;draw()};el("zoomIn").onclick=()=>{zoom=Math.min(3,zoom*1.2);draw()};el("zoomOut").onclick=()=>{zoom=Math.max(.3,zoom/1.2);draw()};
 el("graph").addEventListener("pointerdown",e=>{if(!drag)drag={kind:"pan",x:e.clientX,y:e.clientY,px:pan.x,py:pan.y};el("graph").setPointerCapture(e.pointerId)});
 el("graph").addEventListener("pointermove",e=>{if(!drag)return;if(drag.kind==="pan"){pan={x:drag.px+e.clientX-drag.x,y:drag.py+e.clientY-drag.y}}else{const scale=960/el("graph").getBoundingClientRect().width;positions[drag.id]={x:drag.x+(e.clientX-drag.x)*scale/zoom,y:drag.y+(e.clientY-drag.y)*scale/zoom}}draw()});
 el("graph").addEventListener("pointerup",()=>drag=null);el("graph").addEventListener("wheel",e=>{e.preventDefault();zoom=Math.max(.3,Math.min(3,zoom*(e.deltaY<0?1.1:.9)));draw()},{passive:false});
-el("refresh").onclick=async()=>{const key=prompt("서버 읽기 접근키(GRAPH_VIEW_KEY)를 입력하세요. Notion API 비밀키는 입력하지 마세요.");if(!key)return;el("status").textContent="서버 조회 중";try{const r=await fetch("/api/graph",{headers:{Authorization:"Bearer "+key},cache:"no-store"}),j=await r.json();if(!r.ok)throw Error(j.error==="not_configured"?"서버 인증 설정이 필요합니다.":j.error);if(!Array.isArray(j.nodes)||!Array.isArray(j.edges))throw Error("응답 형식 오류");data=j;positions={};updateTypes();draw();el("status").textContent="실시간 조회 성공"+(j.meta?.warnings?.length?" · 일부 DB 미조회: "+j.meta.warnings.join(", "):"")}catch(e){el("status").textContent="조회 실패: "+e.message}};
-updateTypes();draw();
+el("refresh").onclick=async()=>{const key=prompt("서버 읽기 접근키(GRAPH_VIEW_KEY)를 입력하세요. Notion API 비밀키는 입력하지 마세요.");if(!key)return;el("status").textContent="서버 조회 중";try{const r=await fetch("/api/graph",{headers:{Authorization:"Bearer "+key},cache:"no-store"}),j=await r.json();if(!r.ok)throw Error(j.error==="not_configured"?"서버 인증 설정이 필요합니다.":j.error);if(!Array.isArray(j.nodes)||!Array.isArray(j.edges))throw Error("응답 형식 오류");data=j;positions={};updateTypes();updateProjects();draw();el("status").textContent="실시간 조회 성공"+(j.meta?.warnings?.length?" · 일부 DB 미조회: "+j.meta.warnings.join(", "):"")}catch(e){el("status").textContent="조회 실패: "+e.message}};
+updateTypes();updateProjects();draw();
 </script></body></html>

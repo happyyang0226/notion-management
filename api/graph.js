@@ -6,7 +6,7 @@ const SOURCES=[
  {code:"02",id:"41c4bfd4-2eb4-8197-81ef-000bfab0d677",kind:"작업",title:"작업명",state:"상태"},
  {code:"03",id:"41c4bfd4-2eb4-818b-8574-000b47f83a49",kind:"코드",title:"변경 제목",state:"검증 상태"},
  {code:"04",id:"41c4bfd4-2eb4-81e0-92a4-000b9724a147",kind:"오류",title:"오류 제목",state:"상태"},
- {code:"05",id:"41c4bfd4-2eb4-81da-8801-000b2cfe99da",kind:"AI 세션",title:"세션 제목",state:"사용 AI"},
+ {code:"05",id:"41c4bfd4-2eb4-81da-8801-000b2cfe99da",kind:"AI 세션",title:"세션 제목",state:"검증 상태"},
  {code:"06",id:"41c4bfd4-2eb4-8116-9db0-000b6bfa9f0b",kind:"자료",title:"자료명",state:"검증 상태"},
  {code:"07",id:"41c4bfd4-2eb4-817e-ae89-000b38e3be70",kind:"배포",title:"배포/연동명",state:"상태"},
  {code:"08",id:"41c4bfd4-2eb4-81d1-b3cf-000b9154305e",kind:"결정",title:"결정 제목",state:"승인 상태"}
@@ -59,7 +59,7 @@ module.exports=async function handler(req,res){
    for(const page of rowsByCode[source.code]){
     const id="db"+source.code+":"+page.id;
     const state=value(page,source.state);
-    nodes.push({id,title:value(page,source.title)||"(제목 없음)",summary:"Notion "+source.code+" "+source.kind+" 항목",type:source.kind,status:state,url:page.url,source:source.code});
+    nodes.push({id,title:value(page,source.title)||"(제목 없음)",summary:"Notion "+source.code+" "+source.kind+" 항목",type:source.kind,status:state,url:page.url,source:source.code,...(source.code==="05"?{workId:value(page,"작업 ID"),agent:value(page,"사용 AI")}:{})});
     if(source.code!=="01"){
      const projectRefs=value(page,"프로젝트");
      for(const pid of Array.isArray(projectRefs)?projectRefs:[]){

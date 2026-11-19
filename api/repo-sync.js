@@ -54,13 +54,13 @@ async function repos(){
   if(success.length===0)privateStatus="no_private_access";
   // Never claim the 6 private repositories were checked when the credential was rejected.
   if(privateStatus==="no_private_access"){
-   const codes=[...new Set(denied.map(x=>(x.error.match(/upstream_status_\\d{3}/)||[])[0]||"unreachable"))];
+   const codes=[...new Set(denied.map(x=>{const code=(x.error.match(/upstream_status_(\d{3})/)||[])[1];return code?"HTTP "+code:/timeout|timed out|TimeoutError/i.test(x.error)?"timeout":/fetch failed|network/i.test(x.error)?"network_error":"unknown_error";}))];
    return {items:[...rows.values()].map(r=>({name:r.name,fullName:r.full_name,url:r.html_url||"https://github.com/"+r.full_name,private:!!r.private,archived:!!r.archived,description:(r.description||"").slice(0,350)})),
-    visibility:"public_repositories_only",privateStatus,codes};
+    visibility:"public_repositories_only",privateStatus,codes,failed:denied.map(x=>({name:x.name,reason:(x.error.match(/upstream_status_(\d{3})/)||[])[1]||(/timeout/i.test(x.error)?"timeout":"network_or_other")}))};
   }
  }
  return {items:[...rows.values()].map(r=>({name:r.name,fullName:r.full_name,url:r.html_url||"https://github.com/"+r.full_name,private:!!r.private,archived:!!r.archived,description:(r.description||"").slice(0,350)})),
-  visibility:token?"authenticated_owner_repositories":"public_repositories_only",privateStatus};
+  visibility:token?"authenticated_owner_repositories":"public_repositories_only",privateStatus,failed:token?[]:[]};
 }
 function compare(repo,rows){
  const low=x=>String(x||"").trim().replace(/\/+$/,"").toLowerCase();
@@ -98,7 +98,7 @@ module.exports=async function handler(req,res){
   const [github,existing]=results.map(x=>x.value);
   const mapped=github.items.map(r=>{const p=compare(r,existing);return {...r,match:p?{title:prop(p,"프로젝트명"),url:p.url}:null}});
   if(body.action==="preview"){
-   return res.status(200).json({visibility:github.visibility,privateStatus:github.privateStatus,privateCodes:github.codes||[],githubCount:mapped.length,notionCount:existing.length,
+   return res.status(200).json({visibility:github.visibility,privateStatus:github.privateStatus,privateCodes:github.codes||[],privateFailures:github.failed||[],githubCount:mapped.length,notionCount:existing.length,
     existing:mapped.filter(r=>r.match),missing:mapped.filter(r=>!r.match)});
   }
   const byName=new Map(mapped.map(r=>[r.fullName.toLowerCase(),r]));

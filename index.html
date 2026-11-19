@@ -2,11 +2,11 @@
 <html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Notion Second Brain Graph</title>
 <style>
-:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0c1525;color:#eaf1fb;font:15px system-ui,Arial,sans-serif}header{padding:16px 22px;border-bottom:1px solid #34465b;background:#142237}h1{font-size:22px;margin:0 0 3px}.muted{color:#9cb0c8;font-size:12px}.layout{display:grid;grid-template-columns:210px minmax(0,1fr) 285px;min-height:calc(100vh - 80px);width:100%;max-width:100vw;overflow:hidden}aside{padding:16px;background:#122034;border-right:1px solid #34465b;min-width:0;overflow-wrap:anywhere}aside:last-child{border-left:1px solid #34465b;border-right:0}button,input,select{width:100%;padding:10px;border:1px solid #49617d;border-radius:9px;background:#1c3048;color:white;margin:8px 0;font:inherit}button{cursor:pointer}button:hover{background:#315174}.active{background:#3566aa}main{padding:14px;min-width:0;overflow:hidden}#viewport{width:100%;overflow:auto;border:1px solid #34465b;border-radius:14px;background:radial-gradient(circle,#1b2f49,#0a1323 70%)}#graph{height:69vh;min-height:480px;width:100%;display:block;touch-action:none}#graph.mind-layout{width:1400px;min-width:1400px;height:auto;min-height:540px}#graph g.node{cursor:grab}#graph circle{fill:#3469a5;stroke:#b3d9ff;stroke-width:2}#graph .method circle{fill:#3f806f;stroke:#b4ead9}#graph .node:focus circle,#graph .node:focus rect{stroke:#ffec90;stroke-width:4}#graph .mind-card{fill:#263e59;stroke:#7ca6d1;stroke-width:2}#graph .mind-project{fill:#3469a5;stroke:#b3d9ff;stroke-width:3}#graph .edge{cursor:pointer}#graph .edge .edge-line{stroke:#7397bd;stroke-width:2;fill:none}#graph .edge .edge-hit{stroke:transparent;stroke-width:20;fill:none}#graph .edge:hover .edge-line,#graph .edge.selected .edge-line{stroke:#ffe39c;stroke-width:3.5}#graph .edge-label{opacity:0;fill:#ffedc0;font-size:13px;paint-order:stroke;stroke:#0c1525;stroke-width:4px}#graph .edge:hover .edge-label,#graph .edge.selected .edge-label{opacity:1}#graph .lane-title{fill:#9ebbdc;font-size:15px;font-weight:600}#graph .node-label{font-size:12px}#details{max-width:100%;word-break:break-word}#details a{overflow-wrap:anywhere}#graph text{fill:#fff;font-size:12px;text-anchor:middle;pointer-events:none}.detail{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#a6d3ff}.pill{display:inline-block;background:#1d3350;border-radius:8px;padding:8px;margin-right:8px}@media(max-width:1150px){.layout{grid-template-columns:195px minmax(0,1fr)}.layout>aside:last-child{grid-column:1/-1;border-top:1px solid #34465b;border-left:0}}@media(max-width:700px){.layout{display:block;overflow:visible}.layout>aside{border-right:0;border-bottom:1px solid #34465b}#graph{height:55vh}}
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0c1525;color:#eaf1fb;font:15px system-ui,Arial,sans-serif}header{padding:16px 22px;border-bottom:1px solid #34465b;background:#142237}h1{font-size:22px;margin:0 0 3px}.muted{color:#9cb0c8;font-size:12px}.layout{display:grid;grid-template-columns:210px minmax(0,1fr) minmax(290px,330px);min-height:calc(100vh - 80px);width:100%;max-width:100vw;overflow:hidden}aside{padding:16px;background:#122034;border-right:1px solid #34465b;min-width:0;overflow-wrap:anywhere}aside:last-child{border-left:1px solid #34465b;border-right:0;min-width:0;overflow:auto;max-height:calc(100vh - 80px)}button,input,select{width:100%;padding:10px;border:1px solid #49617d;border-radius:9px;background:#1c3048;color:white;margin:8px 0;font:inherit}button{cursor:pointer}button:hover{background:#315174}.active{background:#3566aa}main{padding:14px;min-width:0;overflow:hidden}#viewport{width:100%;overflow:auto;border:1px solid #34465b;border-radius:14px;background:radial-gradient(circle,#1b2f49,#0a1323 70%)}#graph{height:69vh;min-height:480px;width:100%;display:block;touch-action:none}#graph.mind-layout{width:1400px;min-width:1400px;height:auto;min-height:540px}#graph g.node{cursor:grab}#graph circle{fill:#3469a5;stroke:#b3d9ff;stroke-width:2}#graph .method circle{fill:#3f806f;stroke:#b4ead9}#graph .node:focus circle,#graph .node:focus rect{stroke:#ffec90;stroke-width:4}#graph .mind-card{fill:#263e59;stroke:#7ca6d1;stroke-width:2}#graph .mind-project{fill:#3469a5;stroke:#b3d9ff;stroke-width:3}#graph .edge{cursor:pointer}#graph .edge .edge-line{stroke:#7397bd;stroke-width:2;fill:none}#graph .edge .edge-hit{stroke:transparent;stroke-width:20;fill:none}#graph .edge:hover .edge-line,#graph .edge.selected .edge-line{stroke:#ffe39c;stroke-width:3.5}#graph .edge-label{opacity:0;fill:#ffedc0;font-size:13px;paint-order:stroke;stroke:#0c1525;stroke-width:4px}#graph .edge:hover .edge-label,#graph .edge.selected .edge-label{opacity:1}#graph .lane-title{fill:#9ebbdc;font-size:15px;font-weight:600}#graph .node-label{font-size:12px;font-weight:600}#graph .node-type{fill:#b7cce4;font-size:11px}.summary-panel{margin:10px 0 13px;padding:14px 16px;border:1px solid #344e6a;border-radius:12px;background:#15263d}.summary-panel h2{margin:0 0 7px;font-size:16px}.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.summary-stat{min-width:0;border-radius:8px;background:#213853;padding:9px}.summary-stat strong{display:block;font-size:21px;font-variant-numeric:tabular-nums}.summary-stat span{font-size:12px;color:#b4c6dc}.state-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.state-chip{padding:5px 8px;border-radius:7px;background:#284262;font-size:12px}#details{line-height:1.65}#details h3{line-height:1.4;font-size:18px;overflow-wrap:anywhere}#details .detail-meta{padding:10px;border-radius:8px;background:#1b314a;color:#d1e4f9}#details .detail-desc{white-space:pre-wrap;line-height:1.75}#details a{display:inline-block;margin-top:12px}#details{max-width:100%;word-break:break-word}#details a{overflow-wrap:anywhere}#graph text{fill:#fff;font-size:12px;text-anchor:middle;pointer-events:none}.detail{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#a6d3ff}.pill{display:inline-block;background:#1d3350;border-radius:8px;padding:8px;margin-right:8px}@media(max-width:1350px){.layout{grid-template-columns:195px minmax(0,1fr) minmax(260px,295px)}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:1150px){.layout{grid-template-columns:195px minmax(0,1fr)}.layout>aside:last-child{grid-column:1/-1;border-top:1px solid #34465b;border-left:0;max-height:none}}@media(max-width:700px){.layout{display:block;overflow:visible}.layout>aside{border-right:0;border-bottom:1px solid #34465b}#graph{height:55vh}}
 </style></head><body><header><h1>🧠 AI Second Brain</h1><span class="muted">Notion 지식 관계 탐색기 · 읽기 전용</span></header>
 <div class="layout"><aside><b>지식 탐색</b><button id="graphMode" class="active">관계 그래프</button><button id="mindMode">마인드맵</button><label>검색<input id="search" placeholder="지식 이름 검색"></label><label>유형<select id="filter"><option value="">전체</option></select></label><label>프로젝트별 보기<select id="project"><option value="">모든 프로젝트</option></select></label><button id="clearFilters">필터 초기화</button><button id="refresh">Notion 최신 데이터 조회</button><button id="reset">위치 초기화</button><button id="zoomIn">확대 +</button><button id="zoomOut">축소 −</button><p class="muted" id="status">2026-11-19 스냅샷. API 설정 전에는 자동 갱신되지 않습니다.</p><p class="muted">Notion API 비밀키는 이 화면에 입력하지 마세요.</p></aside>
-<main><div><span id="nodesCount" class="pill"></span><span id="edgesCount" class="pill"></span><span id="source" class="pill"></span></div><p class="muted" id="layoutHint">관계선 선택 시 관계 설명이 표시됩니다.</p><div id="viewport"><svg id="graph" viewBox="0 0 960 660" role="img" aria-label="Notion 관계 그래프"><g id="surface"><g id="edges"></g><g id="nodes"></g></g></svg></div><p class="muted">노드 클릭: 상세 정보 · 관계선 클릭/마우스 올리기: 연결 설명 · 배경 이동/확대 · 마인드맵은 가로 스크롤 가능</p></main>
-<aside><h3>지식 상세 정보</h3><div id="details" class="detail muted">노드를 선택하세요.</div></aside></div>
+<main><section class="summary-panel" id="projectSummary" aria-live="polite"></section><div><span id="nodesCount" class="pill"></span><span id="edgesCount" class="pill"></span><span id="source" class="pill"></span></div><p class="muted" id="layoutHint">관계선 선택 시 관계 설명이 표시됩니다.</p><div id="viewport"><svg id="graph" viewBox="0 0 960 660" role="img" aria-label="Notion 관계 그래프"><g id="surface"><g id="edges"></g><g id="nodes"></g></g></svg></div><p class="muted">노드 클릭: 상세 정보 · 관계선 클릭/마우스 올리기: 연결 설명 · 배경 이동/확대 · 마인드맵은 가로 스크롤 가능</p></main>
+<aside class="detail-aside"><h3>지식 상세 정보</h3><div id="details" class="detail muted">노드를 선택하세요.</div></aside></div>
 <script>
 const snapshot={meta:{mode:"snapshot",capturedOn:"2026-11-19"},nodes:[
 {id:"KB-PTEXAM",title:"pt-exam-app 프로젝트",summary:"물리치료 국가고시 웹앱 관리 프로젝트. 코드·배포의 최신 상태는 미검증",type:"프로젝트",status:"확인",url:"https://app.notion.com/p/41d4bfd42eb481f69198cfe68322a1a3"},
@@ -38,16 +38,28 @@ const groupOf=n=>{
  return 5;
 };
 const headings=["프로젝트","지식·방법","작업","AI 세션","코드·배포","기타"];
+const cardWidth=206;
+function titleLines(title,maxChars=17){
+ // Use character-level wrapping for Korean and long English identifiers.
+ const chars=Array.from(String(title||"(제목 없음)"));
+ const result=[];for(let i=0;i<chars.length;i+=maxChars)result.push(chars.slice(i,i+maxChars).join(""));
+ return result.length?result:["(제목 없음)"];
+}
+function cardHeight(n){return Math.max(84,38+titleLines(n.title).length*19)}
 function prepareLayout(nodes){
- if(mode!=="mind"){canvas={w:960,h:660};el("graph").classList.remove("mind-layout");el("graph").setAttribute("viewBox","0 0 960 660");return}
+ if(mode!=="mind"){
+  canvas={w:960,h:660};el("graph").classList.remove("mind-layout");
+  el("graph").style.height="";el("graph").setAttribute("viewBox","0 0 960 660");return;
+ }
  const groups=headings.map((_,i)=>nodes.filter(n=>groupOf(n)===i));
- const size=Math.max(1,...groups.map(g=>g.length));
- canvas={w:1500,h:Math.max(600,105+size*122)};
+ const colHeights=groups.map(group=>group.reduce((sum,n)=>sum+cardHeight(n)+20,0));
+ canvas={w:1560,h:Math.max(600,95,...colHeights.map(h=>h+80))};
  el("graph").classList.add("mind-layout");
- el("graph").style.height=Math.max(540,Math.min(canvas.h,2100))+"px";
+ el("graph").style.height=canvas.h+"px";
  el("graph").setAttribute("viewBox","0 0 "+canvas.w+" "+canvas.h);
- // Empty lanes are retained to preserve the project → knowledge → task → AI → code hierarchy.
- groups.forEach((group,i)=>group.forEach((n,j)=>{if(!positions[n.id])positions[n.id]={x:125+i*245,y:130+j*122}}));
+ groups.forEach((group,i)=>{
+  let y=103;for(const n of group){const height=cardHeight(n);if(!positions[n.id])positions[n.id]={x:136+i*255,y:y+height/2};y+=height+20;}
+ });
 }
 function point(n,i,total){
  if(positions[n.id])return positions[n.id];
@@ -62,8 +74,34 @@ function updateProjects(){
  if(projects.some(p=>p.id===current))menu.value=current;
 }
 function updateTypes(){const menu=el("filter"),current=menu.value,types=[...new Set(data.nodes.map(n=>n.type).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ko"));menu.replaceChildren(new Option("전체",""));for(const kind of types)menu.add(new Option(kind,kind));if(types.includes(current))menu.value=current}
+function updateSummary(){
+ const elSummary=el("projectSummary"),projectId=el("project").value;
+ const allProjectNodes=data.nodes.filter(n=>n.source==="01");
+ const related=new Set(projectId?[projectId]:data.nodes.map(n=>n.id));
+ if(projectId)for(const e of data.edges){
+  if(e.source===projectId)related.add(e.target);
+  if(e.target===projectId)related.add(e.source);
+ }
+ const records=data.nodes.filter(n=>related.has(n.id)),tasks=records.filter(n=>n.source==="02");
+ const active=tasks.filter(n=>n.status==="진행 중").length,done=tasks.filter(n=>n.status==="완료").length;
+ const pending=tasks.filter(n=>n.status==="대기").length,unknown=tasks.length-active-done-pending;
+ const p=allProjectNodes.find(n=>n.id===projectId);
+ elSummary.replaceChildren();
+ const h=document.createElement("h2");h.textContent=p?p.title+" · 진행 현황":"프로젝트 전체 현황";elSummary.append(h);
+ const note=document.createElement("p");note.className="muted";note.textContent=data.meta.mode==="live"?"Notion 조회값 기준 · 연결된 항목만 집계":"저장된 예시 데이터 · 실시간 조회 전";elSummary.append(note);
+ const grid=document.createElement("div");grid.className="summary-grid";
+ const stats=[["프로젝트",projectId?1:allProjectNodes.length],["연결 기록",records.filter(n=>n.source!=="01").length],["작업",tasks.length],["완료된 작업",done]];
+ for(const [label,count] of stats){const cell=document.createElement("div");cell.className="summary-stat";const num=document.createElement("strong");num.textContent=String(count);const cap=document.createElement("span");cap.textContent=label;cell.append(num,cap);grid.append(cell)}
+ elSummary.append(grid);
+ const chips=document.createElement("div");chips.className="state-bar";
+ for(const [label,value] of [["진행 중",active],["대기",pending],["완료",done],["상태 미확인",unknown]]){
+  if(value===0&&label==="상태 미확인")continue;
+  const chip=document.createElement("span");chip.className="state-chip";chip.textContent=label+" "+value;chips.append(chip);
+ }elSummary.append(chips);
+ const disclaim=document.createElement("p");disclaim.className="muted";disclaim.textContent="작업 상태별 건수이며 전체 개발 진행률(%)이나 기능 구현 완료를 의미하지 않습니다.";elSummary.append(disclaim);
+}
 function draw(){
- const {nodes,edges}=shown();prepareLayout(nodes);
+ const {nodes,edges}=shown();prepareLayout(nodes);updateSummary();
  const map=new Map(nodes.map((n,i)=>[n.id,point(n,i,nodes.length)]));
  el("nodesCount").textContent="지식 "+nodes.length;
  el("edgesCount").textContent="연결 "+edges.length;
@@ -88,10 +126,17 @@ function draw(){
   const p=map.get(n.id),isHub=mode==="mind"&&groupOf(n)===0;
   const g=tag("g",{class:"node"+(n.type==="방법"?" method":""),transform:"translate("+p.x+" "+p.y+")",tabindex:"0",role:"button","aria-label":n.title});
   if(mode==="mind"){
-   g.append(tag("rect",{class:isHub?"mind-project":"mind-card",x:-99,y:-39,width:198,height:78,rx:12}));
-  }else g.append(tag("circle",{r:57,stroke:selected===n.id?"#fde68a":undefined}));
-  const t=tag("text",{class:"node-label",y:-3});t.textContent=n.title.length>18?n.title.slice(0,16)+"…":n.title;g.append(t);
-  const tt=tag("text",{y:18});tt.textContent=n.type||"지식";g.append(tt);
+   const h=cardHeight(n),lines=titleLines(n.title);
+   g.append(tag("rect",{class:isHub?"mind-project":"mind-card",x:-cardWidth/2,y:-h/2,width:cardWidth,height:h,rx:12}));
+   const t=tag("text",{class:"node-label",y:-h/2+23});
+   lines.forEach((line,i)=>{const span=tag("tspan",{x:0,dy:i?19:0});span.textContent=line;t.append(span)});
+   g.append(t);
+   const tt=tag("text",{class:"node-type",y:h/2-11});tt.textContent=n.type||"지식";g.append(tt);
+  }else{
+   g.append(tag("circle",{r:57,stroke:selected===n.id?"#fde68a":undefined}));
+   const t=tag("text",{class:"node-label",y:-3});t.textContent=n.title.length>14?n.title.slice(0,12)+"…":n.title;g.append(t);
+   const tt=tag("text",{class:"node-type",y:18});tt.textContent=n.type||"지식";g.append(tt);
+  }
   g.addEventListener("click",ev=>{ev.stopPropagation();detail(n)});
   g.addEventListener("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();detail(n)}});
   g.addEventListener("pointerdown",e=>{drag={kind:"node",id:n.id,x:e.clientX,y:e.clientY,...p};e.stopPropagation()});
@@ -107,7 +152,7 @@ function edgeDetail(e){
  const x=document.createElement("p");x.textContent=(src?.title||"출발 노드")+" → "+(dst?.title||"대상 노드");
  d.append(h,x,p);draw();
 }
-function detail(n){selected=n.id;selectedEdge="";const d=el("details");d.replaceChildren();const h=document.createElement("h3");h.textContent=n.title;const p=document.createElement("p");p.textContent=n.summary;const t=document.createElement("p");t.textContent="유형: "+n.type+" / 검증: "+n.status;const a=document.createElement("a");a.textContent="Notion 원본 열기";a.href=n.url;a.target="_blank";a.rel="noopener noreferrer";d.append(h,t,p,a);draw()}
+function detail(n){selected=n.id;selectedEdge="";const d=el("details");d.replaceChildren();const h=document.createElement("h3");h.textContent=n.title;const p=document.createElement("p");p.className="detail-desc";p.textContent=n.summary||"요약 정보가 없습니다.";const t=document.createElement("p");t.className="detail-meta";t.textContent="유형: "+(n.type||"미분류")+" / 상태: "+(n.status||"미확인");const a=document.createElement("a");a.textContent="Notion 원본 열기";a.href=n.url;a.target="_blank";a.rel="noopener noreferrer";d.append(h,t,p,a);draw()}
 function change(m){mode=m;positions={};pan={x:0,y:0};zoom=1;el("graph").style.height="";el("graphMode").classList.toggle("active",m==="graph");el("mindMode").classList.toggle("active",m==="mind");draw()}
 el("graphMode").onclick=()=>change("graph");el("mindMode").onclick=()=>change("mind");el("search").oninput=()=>{positions={};draw()};el("filter").onchange=()=>{positions={};draw()};el("project").onchange=()=>{positions={};selected="";el("details").textContent="노드를 선택하세요.";draw()};el("clearFilters").onclick=()=>{el("search").value="";el("filter").value="";el("project").value="";positions={};draw()};el("reset").onclick=()=>{positions={};pan={x:0,y:0};zoom=1;draw()};el("zoomIn").onclick=()=>{zoom=Math.min(3,zoom*1.2);draw()};el("zoomOut").onclick=()=>{zoom=Math.max(.3,zoom/1.2);draw()};
 el("graph").addEventListener("pointerdown",e=>{if(!drag)drag={kind:"pan",x:e.clientX,y:e.clientY,px:pan.x,py:pan.y};el("graph").setPointerCapture(e.pointerId)});

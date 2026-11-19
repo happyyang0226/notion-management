@@ -272,10 +272,10 @@ updateTypes();updateProjects();draw();
   for(const r of j.existing)$("repoExisting").append(row(r,false));
   const m=document.createElement("h4");m.textContent="누락된 저장소 ("+j.missing.length+")";$("repoMissing").append(m);
   for(const r of j.missing)$("repoMissing").append(row(r,true));
-  $("repoStats").textContent="GitHub 조회 "+j.githubCount+"개 / Notion 프로젝트 "+j.notionCount+"개 / 기존 연결 "+j.existing.length+"개 / 신규 등록 후보 "+j.missing.length+"개. "+(j.privateStatus==="no_private_access"?"비공개 저장소 접근 실패 ("+(j.privateCodes||[]).join(", ")+"). 토큰 대상 저장소·권한을 확인하세요.":j.privateStatus==="partial_or_denied"?"비공개 저장소 일부만 접근 가능. 등록 목록을 확인하세요.":j.visibility==="public_repositories_only"?"공개 저장소만 조회됨. 비공개 저장소는 별도 연동 필요.":"비공개 저장소 직접 조회 성공.");
+  $("repoStats").textContent="GitHub 조회 "+j.githubCount+"개 / Notion 프로젝트 "+j.notionCount+"개 / 기존 연결 "+j.existing.length+"개 / 조회된 저장소 중 신규 후보 "+j.missing.length+"개. "+(j.privateStatus==="no_private_access"?"비공개 6개 접근 실패: "+(j.privateCodes||[]).join(", ")+". 현재 ‘0개 후보’는 전체 저장소 대조 결과가 아닙니다.":j.privateStatus==="partial_or_denied"?"비공개 일부 접근 실패. 조회되지 않은 저장소는 누락 후보에 포함되지 않습니다.":j.visibility==="public_repositories_only"?"공개 저장소만 조회됨. 비공개 저장소는 미검사입니다.":"비공개 저장소 조회 성공.");
   $("repoApproved").checked=false;
  }
- $("repoPreview").onclick=async()=>{say("GitHub와 Notion 프로젝트 비교 중...");try{const j=await api("preview");render(j);say("대조 완료. 등록할 저장소만 선택한 뒤 승인해 주세요.")}catch(e){loaded=false;say(e.message)}};
+ $("repoPreview").onclick=async()=>{say("GitHub와 Notion 프로젝트 비교 중...");try{const j=await api("preview");render(j);say(j.privateStatus==="no_private_access"?"비공개 저장소 접근 검증에 실패했습니다. 신규 등록을 진행하지 말고 위 오류 코드를 확인하세요.":"대조 완료. 등록할 저장소만 선택한 뒤 승인해 주세요.")}catch(e){loaded=false;say(e.message)}};
  $("repoSelectAll").onclick=()=>{if(!loaded){say("먼저 목록을 대조하세요.");return}document.querySelectorAll(".repo-select").forEach((x,i)=>x.checked=i<5);say("최대 5개가 선택되었습니다. 나머지는 등록 후 다시 대조하여 선택할 수 있습니다.")};
  $("repoRegister").onclick=async()=>{
   if(!loaded){say("먼저 목록을 대조하세요.");return}
